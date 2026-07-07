@@ -47,6 +47,17 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
+      - name: Probe JitPack for crystal-range-seekbar (diagnostic)
+        run: |
+          echo "=== maven-metadata.xml ==="
+          curl -sSL "https://jitpack.io/com/github/syedowaisali/crystal-range-seekbar/maven-metadata.xml" || true
+          echo
+          echo "=== 1.1.3 build.log (tail) ==="
+          curl -sSL "https://jitpack.io/com/github/syedowaisali/crystal-range-seekbar/1.1.3/build.log" 2>/dev/null | tail -30 || true
+          echo
+          echo "=== master-SNAPSHOT metadata ==="
+          curl -sSL "https://jitpack.io/com/github/syedowaisali/crystal-range-seekbar/master-SNAPSHOT/maven-metadata.xml" || true
+
       - name: Build debug APK
         run: ./gradlew assembleDebug --stacktrace --no-daemon
 

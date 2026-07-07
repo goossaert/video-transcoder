@@ -51,7 +51,9 @@ dependencies {
     implementation 'protect:android-ffmpeg:release@aar'
     // Formerly com.crystal:crystalrangeseekbar:1.1.3 (jcenter, now shut down).
     // Resolved from JitPack, built from https://github.com/syedowaisali/crystal-range-seekbar
-    implementation 'com.github.syedowaisali:crystal-range-seekbar:1.1.3'
+    implementation('com.github.syedowaisali:crystal-range-seekbar:master-SNAPSHOT') {
+        changing = true
+    }
     implementation 'commons-io:commons-io:2.6'
     implementation group: 'com.google.guava', name: 'guava', version: '23.0'
     implementation 'com.nononsenseapps:filepicker:4.2.1'
