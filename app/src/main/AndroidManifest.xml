@@ -4,6 +4,10 @@
     package="protect.videotranscoder">
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!-- Required since API 28 (Android 9) for FFmpegProcessService to call
+         startForeground() while a conversion runs. Normal permission, granted
+         automatically at install time. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <application
         android:name=".App"
         android:allowBackup="false"

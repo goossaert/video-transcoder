@@ -8,11 +8,17 @@ name: Build debug APK
 on:
   push:
     branches:
+      - master
       - claude/android-9-apk-build-9ksyje
   workflow_dispatch:
 
 permissions:
   contents: write
+
+# Serialize runs so two builds never publish the rolling release at once.
+concurrency:
+  group: build-apk
+  cancel-in-progress: false
 
 jobs:
   build:
