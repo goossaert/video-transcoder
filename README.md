@@ -23,17 +23,28 @@ The application requires very few permissions, and never attempts to access the 
 # Building
 
 To build, use the gradle wrapper scripts provided in the top level directory of the project. The following will
-compile the application and run all unit tests:
+compile the application and assemble a debug APK:
 
 GNU/Linux, OSX, UNIX:
 ```
-./gradlew build
+./gradlew assembleDebug
 ```
 
 Windows:
 ```
-./gradlew.bat build
+./gradlew.bat assembleDebug
 ```
+
+The resulting APK is written to `app/build/outputs/apk/debug/app-debug.apk`. Building requires JDK 11 and an
+Android SDK with platform `android-28` and build-tools `30.0.3` installed.
+
+# Downloading a prebuilt APK
+
+Every push to the build branch runs the [Build debug APK](.github/workflows/build-apk.yml) GitHub Actions
+workflow, which compiles a debug-signed APK on GitHub's runners and attaches it to a rolling
+[GitHub Release](https://github.com/goossaert/video-transcoder/releases/tag/android9-debug). This APK installs
+and runs on Android 9 (API 28) devices such as the Huawei nova lite 2 (FIG-LA1). To install it, download the
+`.apk` from that release on the phone, enable "Install unknown apps" for your browser, and open the file.
 
 # Note from Developer
 This app is currently looking for a volunteer to take over development. If you are interested, please reach out.
