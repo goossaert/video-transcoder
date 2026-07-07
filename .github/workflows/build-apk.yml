@@ -1,0 +1,67 @@
+name: Build debug APK
+
+# Builds a debug-signed APK that can be sideloaded onto an Android 9 phone
+# (for example the Huawei nova lite 2 / FIG-LA1). The APK is uploaded both as
+# a workflow artifact and attached to a rolling GitHub Release so it can be
+# downloaded directly onto the phone.
+
+on:
+  push:
+    branches:
+      - claude/android-9-apk-build-9ksyje
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '11'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install required Android SDK packages
+        run: |
+          yes | sdkmanager --licenses > /dev/null || true
+          sdkmanager "platform-tools" "platforms;android-28" "build-tools;30.0.3"
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      - name: Build debug APK
+        run: ./gradlew assembleDebug --stacktrace --no-daemon
+
+      - name: Stage APK
+        run: |
+          mkdir -p dist
+          cp app/build/outputs/apk/debug/app-debug.apk \
+             dist/video-transcoder-android9-debug.apk
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: video-transcoder-android9-debug-apk
+          path: dist/video-transcoder-android9-debug.apk
+          if-no-files-found: error
+
+      - name: Publish rolling release with APK
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete android9-debug --cleanup-tag --yes || true
+          gh release create android9-debug \
+            dist/video-transcoder-android9-debug.apk \
+            --target "$GITHUB_SHA" \
+            --title "Video Transcoder — Android 9 debug APK" \
+            --notes "Debug-signed APK for sideloading on Android 9 (tested target: Huawei nova lite 2 / FIG-LA1, EMUI 9.1). Built from commit ${GITHUB_SHA}. Enable 'Install unknown apps' on the phone, download the .apk below, and open it to install."

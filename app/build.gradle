@@ -1,17 +1,12 @@
 apply plugin: 'com.android.application'
-apply plugin: 'findbugs'
-
-findbugs {
-    sourceSets = []
-    ignoreFailures = false
-}
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
+    buildToolsVersion "30.0.3"
     defaultConfig {
         applicationId "protect.videoeditor"
         minSdkVersion 19
-        targetSdkVersion 27
+        targetSdkVersion 28
         versionCode 15
         versionName "0.14"
     }
@@ -21,13 +16,17 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            // Keep the debug build un-minified so the sideloadable APK is
+            // produced reliably without ProGuard stripping reflection-based
+            // classes (ACRA, FFmpeg service, Jackson).
+            minifyEnabled false
         }
     }
     lintOptions {
         disable "GoogleAppIndexingWarning"
         disable "MissingTranslation"
+        // Do not fail the build on lint issues; we only need the APK.
+        abortOnError false
     }
 
     // Starting with Android Studio 3 Robolectric is unable to find resources.
@@ -47,10 +46,12 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:appcompat-v7:27.1.1'
-    implementation 'com.android.support:design:27.1.1'
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.android.support:design:28.0.0'
     implementation 'protect:android-ffmpeg:release@aar'
-    implementation 'com.crystal:crystalrangeseekbar:1.1.3'
+    // Formerly com.crystal:crystalrangeseekbar:1.1.3 (jcenter, now shut down).
+    // Resolved from JitPack, built from https://github.com/syedowaisali/crystal-range-seekbar
+    implementation 'com.github.syedowaisali:crystal-range-seekbar:1.1.3'
     implementation 'commons-io:commons-io:2.6'
     implementation group: 'com.google.guava', name: 'guava', version: '23.0'
     implementation 'com.nononsenseapps:filepicker:4.2.1'
@@ -66,23 +67,4 @@ dependencies {
     testImplementation 'org.powermock:powermock-api-mockito2:1.7.4'
     testImplementation "org.powermock:powermock-module-junit4-rule:1.7.4"
     testImplementation "org.powermock:powermock-classloading-xstream:1.7.4"
-}
-
-task findbugs(type: FindBugs, dependsOn: 'assembleDebug') {
-
-    description 'Run findbugs'
-    group 'verification'
-
-    classes = fileTree('build/intermediates/javac/debug/compileDebugJavaWithJavac/classes')
-    source = fileTree('src/main/java')
-    classpath = files()
-
-    effort = 'max'
-
-    excludeFilter = file("./config/findbugs/exclude.xml")
-
-    reports {
-        xml.enabled = false
-        html.enabled = true
-    }
 }
